@@ -1,0 +1,37 @@
+{
+  "unit_tests_passed": true,
+  "independent_inference": "independent process passed for N=1, N=5 and N=10",
+  "scenarios_by_strategy": {
+    "n5_SAC": 140,
+    "n5_random": 140,
+    "n5_immediate": 140,
+    "n5_rule": 140,
+    "n10_SAC": 140,
+    "n10_random": 140,
+    "n10_immediate": 140,
+    "n10_rule": 140
+  },
+  "rows_per_scenario": 48,
+  "sac_departures": 1500,
+  "sac_departure_success_rate": 1.0,
+  "bess_terminal_success_rate": 1.0,
+  "csv_cost_tolerance_sgd": 1e-08,
+  "extended_scenarios": 980,
+  "extended_audited_episodes": 4900,
+  "extended_sac_departures": 4912,
+  "extended_departure_success_rate": 1.0,
+  "extended_bess_terminal_success_rate": 1.0,
+  "maximum_offline_replay_error_sgd": 0.00012266879525668628,
+  "checkpoints": {
+    "n5": {
+      "path": "docs/B_SAC/models/final_n5.pt",
+      "selected_step": 72000,
+      "sha256": "0d2c78b9c8952e3e2b70e0ab74eb5a5ab8ce9b943523626b8c2b39b43728682b"
+    },
+    "n10": {
+      "path": "docs/B_SAC/models/final_n10.pt",
+      "selected_step": 120000,
+      "sha256": "983246a97f9fc8b3c19d7158fab2c68c0fb175dda8301564accfa3ad84936b66"
+    }
+  }
+}
