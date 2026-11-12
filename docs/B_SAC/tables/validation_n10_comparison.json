@@ -1,0 +1,524 @@
+{
+  "SAC": {
+    "variable_cost_sgd": 1223.0608650600443,
+    "total_cost_sgd": 1348.576481500044,
+    "purchase_sgd": 1172.3886069068374,
+    "revenue_sgd": 0.5750064902508273,
+    "peak_increment_sgd": 33.2941612144648,
+    "bess_wear_sgd": 12.322556856941816,
+    "ev_wear_sgd": 5.630546572051105,
+    "peak_grid_kw": 261.564904687679,
+    "bess_throughput_kwh": 280.3767202944668,
+    "ev_throughput_kwh": 180.58199397213292,
+    "scenarios": 35,
+    "departures": 250,
+    "departure_success_rate": 1.0
+  },
+  "comparisons": {
+    "immediate": {
+      "mean_saving_sgd": 39.776663987506765,
+      "saving_percent": 3.149784756357918,
+      "fixed_date_seed_bootstrap_95_ci_sgd": [
+        38.50842678790797,
+        41.046494566649976
+      ],
+      "date_cluster_bootstrap_95_ci_sgd": [
+        15.310178478475754,
+        65.38087810573275
+      ],
+      "significantly_better": true,
+      "saving_by_date_sgd": {
+        "2026-10-15": 101.96153293421321,
+        "2026-10-16": 25.784242282147034,
+        "2026-10-17": 62.38090593754439,
+        "2026-10-18": 42.85086296040366,
+        "2026-10-19": 0.02619150249552149,
+        "2026-10-20": 49.76763199828533,
+        "2026-10-21": -4.33471970254177
+      }
+    },
+    "rule": {
+      "mean_saving_sgd": 65.08902244059676,
+      "saving_percent": 5.052907512718654,
+      "fixed_date_seed_bootstrap_95_ci_sgd": [
+        63.37262226900682,
+        66.75997891113556
+      ],
+      "date_cluster_bootstrap_95_ci_sgd": [
+        43.01209050242779,
+        97.1945243458514
+      ],
+      "significantly_better": true,
+      "saving_by_date_sgd": {
+        "2026-10-15": 29.727889368340584,
+        "2026-10-16": 59.250283882510985,
+        "2026-10-17": 69.20012269386027,
+        "2026-10-18": 49.085795983298325,
+        "2026-10-19": 39.758829998846885,
+        "2026-10-20": 154.82512024051,
+        "2026-10-21": 53.775114916810296
+      }
+    },
+    "random": {
+      "mean_saving_sgd": 126.79679991627053,
+      "saving_percent": 9.393345921289812,
+      "fixed_date_seed_bootstrap_95_ci_sgd": [
+        121.41430552605996,
+        132.05031884371346
+      ],
+      "date_cluster_bootstrap_95_ci_sgd": [
+        104.8311139944448,
+        151.7136647556636
+      ],
+      "significantly_better": true,
+      "saving_by_date_sgd": {
+        "2026-10-15": 150.9369085543288,
+        "2026-10-16": 134.80009371316814,
+        "2026-10-17": 112.93471186089126,
+        "2026-10-18": 94.89427080788269,
+        "2026-10-19": 112.06763907189429,
+        "2026-10-20": 189.22700484137846,
+        "2026-10-21": 92.71697056435005
+      }
+    }
+  },
+  "immediate": {
+    "variable_cost_sgd": 1262.8375290475512,
+    "total_cost_sgd": 1388.353145487551,
+    "purchase_sgd": 1238.8327274763794,
+    "revenue_sgd": 0.0,
+    "peak_increment_sgd": 22.492552398569924,
+    "bess_wear_sgd": 0.0,
+    "ev_wear_sgd": 1.5122491726015215,
+    "peak_grid_kw": 244.3803073043399,
+    "bess_throughput_kwh": 0.0,
+    "ev_throughput_kwh": 48.50061490062609,
+    "scenarios": 35,
+    "departures": 250,
+    "departure_success_rate": 1.0
+  },
+  "rule": {
+    "variable_cost_sgd": 1288.1498875006407,
+    "total_cost_sgd": 1413.6655039406407,
+    "purchase_sgd": 1239.5352011963737,
+    "revenue_sgd": 0.9172826290371429,
+    "peak_increment_sgd": 38.13093818711757,
+    "bess_wear_sgd": 4.2247515789473695,
+    "ev_wear_sgd": 7.1762791672393975,
+    "peak_grid_kw": 266.38554059028877,
+    "bess_throughput_kwh": 96.12631578947368,
+    "ev_throughput_kwh": 230.15648387554197,
+    "scenarios": 35,
+    "departures": 250,
+    "departure_success_rate": 1.0
+  },
+  "random": {
+    "variable_cost_sgd": 1349.8576649763145,
+    "total_cost_sgd": 1475.3732814163147,
+    "purchase_sgd": 1266.6996425473594,
+    "revenue_sgd": 1.0263052342367007,
+    "peak_increment_sgd": 46.828078935121695,
+    "bess_wear_sgd": 30.468396061320476,
+    "ev_wear_sgd": 6.887852666749725,
+    "peak_grid_kw": 288.25627024903497,
+    "bess_throughput_kwh": 693.2513324532532,
+    "ev_throughput_kwh": 220.90611503366665,
+    "scenarios": 35,
+    "departures": 250,
+    "departure_success_rate": 1.0
+  },
+  "offline_opt": {
+    "variable_cost_sgd": 1189.9560804190362,
+    "total_cost_sgd": 1315.4716968590362,
+    "purchase_sgd": 1157.899047293123,
+    "revenue_sgd": 0.5081830279357137,
+    "peak_increment_sgd": 17.94108308548824,
+    "bess_wear_sgd": 10.21979285643296,
+    "ev_wear_sgd": 4.404340211927783,
+    "peak_grid_kw": 247.79623376623246,
+    "bess_throughput_kwh": 232.5322606696919,
+    "ev_throughput_kwh": 141.2552986506666,
+    "scenarios": 35,
+    "departures": 250,
+    "departure_success_rate": 1.0,
+    "objective_lower_bound_sgd": 1189.9560391910818,
+    "maximum_replay_error_sgd": 7.658041135982785e-05
+  },
+  "building_only": {
+    "variable_cost_sgd": 1235.5234384680077,
+    "total_cost_sgd": 1361.0390549080084,
+    "purchase_sgd": 1217.9292338499124,
+    "revenue_sgd": 0.0,
+    "peak_increment_sgd": 17.594204618095244,
+    "bess_wear_sgd": 0.0,
+    "ev_wear_sgd": 0.0,
+    "peak_grid_kw": 237.4876978571429,
+    "bess_throughput_kwh": 0.0,
+    "ev_throughput_kwh": 0.0,
+    "scenarios": 35,
+    "departures": 0,
+    "departure_success_rate": null
+  },
+  "percentage_by_strategy": {
+    "SAC": {
+      "optimality_gap_closure_from_immediate": {
+        "percent": 54.57718285650015,
+        "numerator_sgd": 39.776663987506936,
+        "denominator_sgd": 72.88148985646944,
+        "status": "defined"
+      },
+      "optimality_gap_closure_from_random": {
+        "percent": 79.29675467250951,
+        "numerator_sgd": 126.79679991627017,
+        "denominator_sgd": 159.90162578523268,
+        "status": "defined"
+      },
+      "net_ev_storage_cost_reduction": {
+        "percent": 145.62690224545523,
+        "numerator_sgd": 39.776663987506936,
+        "denominator_sgd": 27.314090579543517,
+        "status": "defined"
+      },
+      "relative_saving_from_immediate": {
+        "percent": 3.1497847563579318,
+        "numerator_sgd": 39.776663987506936,
+        "denominator_sgd": 1262.8375290475512,
+        "status": "defined"
+      }
+    },
+    "immediate": {
+      "optimality_gap_closure_from_immediate": {
+        "percent": 0.0,
+        "numerator_sgd": 0.0,
+        "denominator_sgd": 72.88148985646944,
+        "status": "defined"
+      },
+      "optimality_gap_closure_from_random": {
+        "percent": 54.421045127859955,
+        "numerator_sgd": 87.02013592876324,
+        "denominator_sgd": 159.90162578523268,
+        "status": "defined"
+      },
+      "net_ev_storage_cost_reduction": {
+        "percent": 0.0,
+        "numerator_sgd": 0.0,
+        "denominator_sgd": 27.314090579543517,
+        "status": "defined"
+      },
+      "relative_saving_from_immediate": {
+        "percent": 0.0,
+        "numerator_sgd": 0.0,
+        "denominator_sgd": 1262.8375290475512,
+        "status": "defined"
+      }
+    },
+    "rule": {
+      "optimality_gap_closure_from_immediate": {
+        "percent": -34.73084661542848,
+        "numerator_sgd": -25.312358453089473,
+        "denominator_sgd": 72.88148985646944,
+        "status": "defined"
+      },
+      "optimality_gap_closure_from_random": {
+        "percent": 38.591088222301636,
+        "numerator_sgd": 61.707777475673765,
+        "denominator_sgd": 159.90162578523268,
+        "status": "defined"
+      },
+      "net_ev_storage_cost_reduction": {
+        "percent": -92.67143044493962,
+        "numerator_sgd": -25.312358453089473,
+        "denominator_sgd": 27.314090579543517,
+        "status": "defined"
+      },
+      "relative_saving_from_immediate": {
+        "percent": -2.004403406682124,
+        "numerator_sgd": -25.312358453089473,
+        "denominator_sgd": 1262.8375290475512,
+        "status": "defined"
+      }
+    },
+    "random": {
+      "optimality_gap_closure_from_immediate": {
+        "percent": -119.39950198622174,
+        "numerator_sgd": -87.02013592876324,
+        "denominator_sgd": 72.88148985646944,
+        "status": "defined"
+      },
+      "optimality_gap_closure_from_random": {
+        "percent": 0.0,
+        "numerator_sgd": 0.0,
+        "denominator_sgd": 159.90162578523268,
+        "status": "defined"
+      },
+      "net_ev_storage_cost_reduction": {
+        "percent": -318.59063978478446,
+        "numerator_sgd": -87.02013592876324,
+        "denominator_sgd": 27.314090579543517,
+        "status": "defined"
+      },
+      "relative_saving_from_immediate": {
+        "percent": -6.8908417692016934,
+        "numerator_sgd": -87.02013592876324,
+        "denominator_sgd": 1262.8375290475512,
+        "status": "defined"
+      }
+    },
+    "offline_opt": {
+      "optimality_gap_closure_from_immediate": {
+        "percent": 99.99994343151536,
+        "numerator_sgd": 72.88144862851505,
+        "denominator_sgd": 72.88148985646944,
+        "status": "defined"
+      },
+      "optimality_gap_closure_from_random": {
+        "percent": 99.99997421667592,
+        "numerator_sgd": 159.90158455727828,
+        "denominator_sgd": 159.90162578523268,
+        "status": "defined"
+      },
+      "net_ev_storage_cost_reduction": {
+        "percent": 266.827293466979,
+        "numerator_sgd": 72.88144862851505,
+        "denominator_sgd": 27.314090579543517,
+        "status": "defined"
+      },
+      "relative_saving_from_immediate": {
+        "percent": 5.771245069306992,
+        "numerator_sgd": 72.88144862851505,
+        "denominator_sgd": 1262.8375290475512,
+        "status": "defined"
+      }
+    }
+  },
+  "percentage_metrics": {
+    "optimality_gap_closure_from_immediate": {
+      "percent": 54.57718285650015,
+      "numerator_sgd": 39.776663987506936,
+      "denominator_sgd": 72.88148985646944,
+      "status": "defined"
+    },
+    "optimality_gap_closure_from_random": {
+      "percent": 79.29675467250951,
+      "numerator_sgd": 126.79679991627017,
+      "denominator_sgd": 159.90162578523268,
+      "status": "defined"
+    },
+    "net_ev_storage_cost_reduction": {
+      "percent": 145.62690224545523,
+      "numerator_sgd": 39.776663987506936,
+      "denominator_sgd": 27.314090579543517,
+      "status": "defined"
+    },
+    "relative_saving_from_immediate": {
+      "percent": 3.1497847563579318,
+      "numerator_sgd": 39.776663987506936,
+      "denominator_sgd": 1262.8375290475512,
+      "status": "defined"
+    }
+  },
+  "percentage_aggregation": "Ratio of paired-grid mean costs, equal weight per scenario",
+  "price_regime_definition": {
+    "fitted_split": "train",
+    "statistic": "daily_USEP_max_minus_min",
+    "threshold_sgd_per_kwh": 1.331295,
+    "quantile": 0.75
+  },
+  "price_groups": {
+    "flat_regular": {
+      "SAC": {
+        "variable_cost_sgd": 1223.0608650600443,
+        "total_cost_sgd": 1348.576481500044,
+        "purchase_sgd": 1172.3886069068374,
+        "revenue_sgd": 0.5750064902508273,
+        "peak_increment_sgd": 33.2941612144648,
+        "bess_wear_sgd": 12.322556856941816,
+        "ev_wear_sgd": 5.630546572051105,
+        "peak_grid_kw": 261.564904687679,
+        "bess_throughput_kwh": 280.3767202944668,
+        "ev_throughput_kwh": 180.58199397213292,
+        "scenarios": 35,
+        "departures": 250,
+        "departure_success_rate": 1.0
+      },
+      "comparisons": {
+        "immediate": {
+          "mean_saving_sgd": 39.776663987506765,
+          "saving_percent": 3.149784756357918,
+          "fixed_date_seed_bootstrap_95_ci_sgd": [
+            38.50842678790797,
+            41.046494566649976
+          ],
+          "date_cluster_bootstrap_95_ci_sgd": [
+            15.310178478475754,
+            65.38087810573275
+          ],
+          "significantly_better": true,
+          "saving_by_date_sgd": {
+            "2026-10-15": 101.96153293421321,
+            "2026-10-16": 25.784242282147034,
+            "2026-10-17": 62.38090593754439,
+            "2026-10-18": 42.85086296040366,
+            "2026-10-19": 0.02619150249552149,
+            "2026-10-20": 49.76763199828533,
+            "2026-10-21": -4.33471970254177
+          }
+        },
+        "rule": {
+          "mean_saving_sgd": 65.08902244059676,
+          "saving_percent": 5.052907512718654,
+          "fixed_date_seed_bootstrap_95_ci_sgd": [
+            63.37262226900682,
+            66.75997891113556
+          ],
+          "date_cluster_bootstrap_95_ci_sgd": [
+            43.01209050242779,
+            97.1945243458514
+          ],
+          "significantly_better": true,
+          "saving_by_date_sgd": {
+            "2026-10-15": 29.727889368340584,
+            "2026-10-16": 59.250283882510985,
+            "2026-10-17": 69.20012269386027,
+            "2026-10-18": 49.085795983298325,
+            "2026-10-19": 39.758829998846885,
+            "2026-10-20": 154.82512024051,
+            "2026-10-21": 53.775114916810296
+          }
+        },
+        "random": {
+          "mean_saving_sgd": 126.79679991627053,
+          "saving_percent": 9.393345921289812,
+          "fixed_date_seed_bootstrap_95_ci_sgd": [
+            121.41430552605996,
+            132.05031884371346
+          ],
+          "date_cluster_bootstrap_95_ci_sgd": [
+            104.8311139944448,
+            151.7136647556636
+          ],
+          "significantly_better": true,
+          "saving_by_date_sgd": {
+            "2026-10-15": 150.9369085543288,
+            "2026-10-16": 134.80009371316814,
+            "2026-10-17": 112.93471186089126,
+            "2026-10-18": 94.89427080788269,
+            "2026-10-19": 112.06763907189429,
+            "2026-10-20": 189.22700484137846,
+            "2026-10-21": 92.71697056435005
+          }
+        }
+      },
+      "immediate": {
+        "variable_cost_sgd": 1262.8375290475512,
+        "total_cost_sgd": 1388.353145487551,
+        "purchase_sgd": 1238.8327274763794,
+        "revenue_sgd": 0.0,
+        "peak_increment_sgd": 22.492552398569924,
+        "bess_wear_sgd": 0.0,
+        "ev_wear_sgd": 1.5122491726015215,
+        "peak_grid_kw": 244.3803073043399,
+        "bess_throughput_kwh": 0.0,
+        "ev_throughput_kwh": 48.50061490062609,
+        "scenarios": 35,
+        "departures": 250,
+        "departure_success_rate": 1.0
+      },
+      "rule": {
+        "variable_cost_sgd": 1288.1498875006407,
+        "total_cost_sgd": 1413.6655039406407,
+        "purchase_sgd": 1239.5352011963737,
+        "revenue_sgd": 0.9172826290371429,
+        "peak_increment_sgd": 38.13093818711757,
+        "bess_wear_sgd": 4.2247515789473695,
+        "ev_wear_sgd": 7.1762791672393975,
+        "peak_grid_kw": 266.38554059028877,
+        "bess_throughput_kwh": 96.12631578947368,
+        "ev_throughput_kwh": 230.15648387554197,
+        "scenarios": 35,
+        "departures": 250,
+        "departure_success_rate": 1.0
+      },
+      "random": {
+        "variable_cost_sgd": 1349.8576649763145,
+        "total_cost_sgd": 1475.3732814163147,
+        "purchase_sgd": 1266.6996425473594,
+        "revenue_sgd": 1.0263052342367007,
+        "peak_increment_sgd": 46.828078935121695,
+        "bess_wear_sgd": 30.468396061320476,
+        "ev_wear_sgd": 6.887852666749725,
+        "peak_grid_kw": 288.25627024903497,
+        "bess_throughput_kwh": 693.2513324532532,
+        "ev_throughput_kwh": 220.90611503366665,
+        "scenarios": 35,
+        "departures": 250,
+        "departure_success_rate": 1.0
+      },
+      "offline_opt": {
+        "variable_cost_sgd": 1189.9560804190362,
+        "total_cost_sgd": 1315.4716968590362,
+        "purchase_sgd": 1157.899047293123,
+        "revenue_sgd": 0.5081830279357137,
+        "peak_increment_sgd": 17.94108308548824,
+        "bess_wear_sgd": 10.21979285643296,
+        "ev_wear_sgd": 4.404340211927783,
+        "peak_grid_kw": 247.79623376623246,
+        "bess_throughput_kwh": 232.5322606696919,
+        "ev_throughput_kwh": 141.2552986506666,
+        "scenarios": 35,
+        "departures": 250,
+        "departure_success_rate": 1.0
+      },
+      "building_only": {
+        "variable_cost_sgd": 1235.5234384680077,
+        "total_cost_sgd": 1361.0390549080084,
+        "purchase_sgd": 1217.9292338499124,
+        "revenue_sgd": 0.0,
+        "peak_increment_sgd": 17.594204618095244,
+        "bess_wear_sgd": 0.0,
+        "ev_wear_sgd": 0.0,
+        "peak_grid_kw": 237.4876978571429,
+        "bess_throughput_kwh": 0.0,
+        "ev_throughput_kwh": 0.0,
+        "scenarios": 35,
+        "departures": 0,
+        "departure_success_rate": null
+      },
+      "dates": [
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-17",
+        "2026-10-18",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21"
+      ],
+      "percentage_metrics": {
+        "optimality_gap_closure_from_immediate": {
+          "percent": 54.57718285650015,
+          "numerator_sgd": 39.776663987506936,
+          "denominator_sgd": 72.88148985646944,
+          "status": "defined"
+        },
+        "optimality_gap_closure_from_random": {
+          "percent": 79.29675467250951,
+          "numerator_sgd": 126.79679991627017,
+          "denominator_sgd": 159.90162578523268,
+          "status": "defined"
+        },
+        "net_ev_storage_cost_reduction": {
+          "percent": 145.62690224545523,
+          "numerator_sgd": 39.776663987506936,
+          "denominator_sgd": 27.314090579543517,
+          "status": "defined"
+        },
+        "relative_saving_from_immediate": {
+          "percent": 3.1497847563579318,
+          "numerator_sgd": 39.776663987506936,
+          "denominator_sgd": 1262.8375290475512,
+          "status": "defined"
+        }
+      }
+    }
+  }
+}

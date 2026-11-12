@@ -1,0 +1,4 @@
+-r ../env/requirements.txt
+torch==2.8.0
+matplotlib==3.10.7
+scipy==1.16.3
