@@ -3,4 +3,4 @@
 *.png binary
 *.pdf binary
 # EMC 原始下载文件保持原样（含 CRLF），D 的校验会比对原始字节
-data/D_v0.2/sources/*.csv -text
+data/D/sources/*.csv -text
