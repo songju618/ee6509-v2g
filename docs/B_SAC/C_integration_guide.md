@@ -65,13 +65,15 @@ python -m sac.evaluate \
 
 ---
 
-## 4. 对齐正式基线后重绘对比图
+## 4. 与正式基线的对比
 
-目前 `docs/B_SAC/figures/` 与 `tables/` 中的 `immediate`、`rule`、`offline_opt` 是由 `sac/references.py` 与 `sac/offline.py`（基于 SciPy HiGHS）在同一测试网格上跑出的内部核账对照：
-* `immediate`（到场即按最大功率充至目标，BESS 不动）与 `offline_opt`（全天无噪真值 LP/MILP 理论下界，`env.step_power` 回放误差 `< 0.00013 SGD`）数学定义唯一，可与 C 同学的 `baselines/` 和 `milp/` 输出交叉核对（标准测试集日均可变成本：`N=5` 为 `1243.08` 与 `1172.54 SGD/天`；`N=10` 为 `1256.19` 与 `1169.33 SGD/天`）。
-* 待 C 同学确定正式版 `rule`（低价充高价放）阈值并由统一入口产出全策略汇总后，如需替换柱状图中的 `rule` 数值，只需更新对应 `comparison.json` 后运行：
+对比图和对比表使用 C 的正式基线（`baselines/` 的到场就充、低价充高价放，以及 MILP），由下面两步生成：
 
 ```bash
-python -m analysis.plotting.plot_sac --results results/sac --figures-dir docs/B_SAC/figures
-python -m analysis.plotting.plot_extended --results results/sac --figures-dir docs/B_SAC/figures
+python -m sac.official
+python -m analysis.plotting.plot_official --figures-dir docs/B_SAC/figures --tables-dir docs/B_SAC/tables
 ```
+
+* `sac.official` 在 SAC 评估过的同一批场景上运行 C 的两个规则基线，并经 A 的环境结算；MILP 下界使用 B 的 `offline_opt`（`sac/offline.py`，SciPy HiGHS），它与 C 的 MILP 逐场景相差不超过 0.0001 SGD，因此这一步不需要 pulp。
+* 若 C 的 `analysis.run_all` 已经输出 `results/summary_n{N}.csv`，会逐场景核对两边结果，不一致时报错。
+* B 训练阶段的内部对照 `immediate`（到场即充到 65% 目标）与 C 的到场就充（充满）定义不同：标准测试集 N=5 上分别为 1243.08 与 1260.09 SGD/天。

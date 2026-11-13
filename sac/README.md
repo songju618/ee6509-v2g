@@ -36,7 +36,11 @@ python -m sac.evaluate --checkpoint docs/B_SAC/models/final_n10.pt --n-slots 10 
 python -m sac.train --config sac/configs/default.json --n-slots 5 --output-dir sac/checkpoints/run_n5
 python -m sac.train --config sac/configs/default.json --n-slots 10 --output-dir sac/checkpoints/run_n10
 
-# 3) 由评估产物重新生成全部 PNG / PDF 图表
+# 3) 与正式基线（C 的到场就充、低价充高价放，以及 MILP）对比，生成对比图表
+python -m sac.official
+python -m analysis.plotting.plot_official --figures-dir docs/B_SAC/figures --tables-dir docs/B_SAC/tables
+
+# 4) 由评估产物重新生成 SAC 自身的图（训练曲线、典型日、注意力、扩展场景在场车数）
 python -m analysis.plotting.plot_sac --results results/sac --figures-dir docs/B_SAC/figures
 python -m analysis.plotting.plot_extended --results results/sac --figures-dir docs/B_SAC/figures
 ```
@@ -49,11 +53,13 @@ python -m analysis.plotting.plot_extended --results results/sac --figures-dir do
 
 ## 5. 核心验证与测试结果摘要
 
-单位为日均可变成本（`SGD/天`），标准测试集为 `2026-10-22..28 × seed 100..119`（140 个场景均值，纯楼宇无车无储能基准为 `1233.94 SGD/天`）：
+单位为日均可变成本（`SGD/天`），标准测试集为 `2026-10-22..28 × seed 100..119`（140 个场景均值，纯楼宇无车无储能基准为 `1233.94 SGD/天`）。基线为技术方案 §6.1 的正式基线，由 C 实现：
 
-| 规模 | 验证集 `SAC` | 测试集 `offline_opt` | 测试集 `SAC` | 测试集 `immediate` | 测试集 `rule` | 测试集 `random` | 即充空间捕获率 | 离场达标率 |
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| `N=5` | 1208.25 | 1172.54 | **1200.69** | 1243.08 | 1261.68 | 1325.24 | **60.1%** | **100%** |
-| `N=10` | 1223.06 | 1169.33 | **1198.34** | 1256.19 | 1286.69 | 1349.45 | **66.6%** | **100%** |
+| 规模 | 验证集 `SAC` | 测试集 MILP | 测试集 `SAC` | 测试集到场就充 | 测试集规则策略 | SAC 填补的差距（对到场就充 / 对规则） | 离场达标率 |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| `N=5` | 1208.25 | 1172.54 | **1200.69** | 1260.09 | 1234.57 | 67.8% / 54.6% | **100%** |
+| `N=10` | 1223.06 | 1169.33 | **1198.34** | 1295.28 | 1246.29 | 77.0% / 62.3% | **100%** |
+
+均值上 SAC 落在 MILP 与两个基线之间。7 个测试日中，SAC 比到场就充更省的有 6 天（N=5）/ 7 天（N=10），比规则策略更省的有 3 / 4 天；相对规则策略，按天重抽的 95% 区间包含 0。逐场景、逐日结果见 `docs/B_SAC/tables/official_*.csv`。
 
 详细分项成本、消融对比、`0~10` 台车动态规模与夜间停靠扩展实验及机理分析见 [docs/B_SAC/B_SAC_report_draft.md](../docs/B_SAC/B_SAC_report_draft.md)。

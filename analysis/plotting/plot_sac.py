@@ -1,5 +1,6 @@
-"""Generate standard Part B figures from exported CSVs and evaluation summaries.
+"""Generate Part B's SAC-only figures: training curves, typical days, attention.
 
+Strategy comparisons against the official baselines are drawn by plot_official.
 Run from the repository root with python -m analysis.plotting.plot_sac.
 """
 from __future__ import annotations
@@ -66,8 +67,8 @@ def read_csv(path):
             for key in rows[0] if key not in ('strategy', 'date')}
 
 
-def typical_day(directory, n, output):
-    stem = directory / f'SAC_2026-10-22_seed100_n{n}'
+def typical_day(directory, n, output, date, seed):
+    stem = directory / f'SAC_{date}_seed{seed}_n{n}'
     values = read_csv(stem.with_suffix('.csv'))
     scenario = json.loads(stem.with_suffix('.scenario.json').read_text())
     truth = np.asarray(scenario['truth'])
@@ -83,7 +84,7 @@ def typical_day(directory, n, output):
     price_ax.stairs(values['buy_price'], edges, baseline=None, color='#ac4263', ls='--', label='Buy price')
     price_ax.set_ylabel('Buy price (SGD/kWh)', color='#ac4263')
     ax.set(xlabel='Singapore local hour', ylabel='AC power (kW)', xlim=(0, 24),
-           title=f'SAC dispatch, 2026-10-22, seed 100, N={n}')
+           title=f'SAC dispatch, {date}, seed {seed}, N={n}')
     ax.axhline(0, color='black', lw=.5)
     lines, labels = ax.get_legend_handles_labels()
     extra, extra_labels = price_ax.get_legend_handles_labels()
@@ -91,7 +92,7 @@ def typical_day(directory, n, output):
               bbox_to_anchor=(0, 1.02), frameon=False, fontsize=8)
     ax.set_title(ax.get_title(), pad=50)
     ax.set_xticks(range(0, 25, 4))
-    save(fig, output, f'power_price_n{n}')
+    save(fig, output, f'power_price_n{n}_{date}')
 
     params = load_params()
     mask = occupancy_mask(scenario)
@@ -109,9 +110,9 @@ def typical_day(directory, n, output):
         ax.legend(ncol=4, frameon=False, fontsize=8)
     axes[1].set(xlabel='Singapore local hour, end of interval', xlim=(0, 24))
     axes[1].set_xticks(range(0, 25, 4))
-    fig.suptitle(f'Battery energy, occupied EV slots only, N={n}')
+    fig.suptitle(f'Battery energy, occupied EV slots only, {date}, seed {seed}, N={n}')
     fig.tight_layout()
-    save(fig, output, f'soc_n{n}')
+    save(fig, output, f'soc_n{n}_{date}')
 
 
 def attention_plot(directory, n, output):
@@ -138,48 +139,25 @@ def attention_plot(directory, n, output):
     save(fig, output, f'attention_dwell_n{n}')
 
 
-def costs(comparisons, output):
-    fig, axes = plt.subplots(1, 2, figsize=(12.5, 4.5))
-    components = [('purchase_sgd', 'Purchase'), ('revenue_sgd', 'Export revenue (negative)'),
-                  ('peak_increment_sgd', 'Excess capacity'), ('bess_wear_sgd', 'BESS wear'),
-                  ('ev_wear_sgd', 'EV wear')]
-    for ax, (n, report) in zip(axes, comparisons.items()):
-        strategies = ['random', 'rule', 'immediate', 'SAC']
-        if 'offline_opt' in report:
-            strategies.append('offline_opt')
-        bottom = np.zeros(len(strategies))
-        for key, label in components:
-            values = np.array([report[strategy][key] for strategy in strategies])
-            if key == 'revenue_sgd':
-                values *= -1
-            ax.bar(strategies, values, bottom=bottom, label=label)
-            bottom += values
-        for index, total in enumerate(bottom):
-            ax.text(index, total + 12, f'{total:.1f}', ha='center', fontsize=8.5)
-        ax.set(ylabel='Mean variable cost (SGD/day)', title=f'Final test grid, N={n}')
-        ax.tick_params(axis='x', rotation=15)
-    axes[1].legend(frameon=False, fontsize=8, loc='upper left', bbox_to_anchor=(1.02, 1))
-    fig.tight_layout()
-    save(fig, output, 'cost_components')
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--n5-run', type=Path, default=Path('docs/B_SAC/training_logs/n5_training.jsonl'))
     parser.add_argument('--n10-run', type=Path, default=Path('docs/B_SAC/training_logs/n10_training.jsonl'))
     parser.add_argument('--results', type=Path, default=Path('results/sac'))
     parser.add_argument('--figures-dir', type=Path, default=None)
+    parser.add_argument('--typical', nargs='+', default=['2026-10-28:100', '2026-10-22:100'],
+                        help='DATE:SEED test scenarios for the typical-day figures '
+                             '(default: the spike day 10-28 and the flat day 10-22)')
     args = parser.parse_args()
     output = args.figures_dir if args.figures_dir is not None else args.results / 'figures'
     output.mkdir(parents=True, exist_ok=True)
     training_curve({5: args.n5_run, 10: args.n10_run}, output)
-    comparisons = {}
     for n in (5, 10):
         directory = args.results / f'test_n{n}' / 'SAC'
-        typical_day(directory, n, output)
+        for item in args.typical:
+            date, seed = item.split(':')
+            typical_day(directory, n, output, date, int(seed))
         attention_plot(directory, n, output)
-        comparisons[n] = json.loads((args.results / f'test_n{n}' / 'comparison.json').read_text())
-    costs(comparisons, output)
 
 
 if __name__ == '__main__':

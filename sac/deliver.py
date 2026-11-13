@@ -177,6 +177,11 @@ def deliver(n5_run, n10_run, output, config='sac/configs/default.json',
     subprocess.run([sys.executable, '-m', 'analysis.plotting.plot_sac', '--n5-run', str(runs[5]),
                     '--n10-run', str(runs[10]), '--results', str(output)], check=True)
     subprocess.run([sys.executable, '-m', 'analysis.plotting.plot_extended', '--results', str(output)], check=True)
+    # Comparison against the official baselines (C's arrival charge and price rule, MILP).
+    subprocess.run([sys.executable, '-m', 'sac.official', '--results', str(output)], check=True)
+    subprocess.run([sys.executable, '-m', 'analysis.plotting.plot_official',
+                    '--official', str(output / 'official'), '--figures-dir', str(output / 'figures'),
+                    '--tables-dir', str(output / 'tables')], check=True)
     write_json(output / 'acceptance.json', acceptance)
     print(json.dumps(acceptance, indent=2), flush=True)
 
