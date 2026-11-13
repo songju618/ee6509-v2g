@@ -91,12 +91,14 @@ def write_strategy_csv(path, infos, strategy):
         writer.writerows(info_to_row(info, strategy=strategy) for info in infos)
 
 
-def summarize(date, seed, strategy, summary, csv_path=None, extra=None):
+def summarize(date, seed, strategy, summary, csv_path=None, extra=None, *, n_slots):
+    """One summary row. `n_slots` is the slot count of the run (5 or 10), passed by the
+    caller: it cannot be read from the departures, which are empty on weekends."""
     row = {
         "strategy": strategy,
         "date": date,
         "seed": seed,
-        "n_slots": len(summary["departures"]) if summary["departures"] else None,
+        "n_slots": int(n_slots),
         "variable_cost_sgd": summary["variable_cost_sgd"],
         "fixed_pv_sgd": summary["fixed_pv_sgd"],
         "fixed_contract_sgd": summary["fixed_contract_sgd"],

@@ -80,17 +80,18 @@ def _extract_powers(model, T, N, params):
     return powers
 
 
-def _recompute_objective(scenario, powers, params):
-    """Recompute the LP objective from the replayed powers, not pulp.value().
-
-    Uses A's settlement via a fresh env that we step. This is the delivered cost
-    of the schedule; the LP's `pulp.value()` was computed before integrality snapping.
-    """
+def _replay(scenario, powers):
+    """Settle the snapped schedule in A's env. This is the delivered cost of the schedule."""
     infos, summary = replay(scenario, powers, tol=1e-4)
-    return summary["variable_cost_sgd"], infos, summary
+    return infos, summary
 
 
 def solve(scenario, params=None, time_limit=300, gap_rel=1e-6):
+    """Return (powers, milp_objective, status_name, infos, summary).
+
+    `milp_objective` is the solver's objective value (variable cost, S$). The replayed
+    cost is `summary["variable_cost_sgd"]`; the README acceptance compares the two.
+    """
     params = load_params() if params is None else params
     model = build_model(scenario, params)
     solver = pulp.PULP_CBC_CMD(
@@ -99,12 +100,13 @@ def solve(scenario, params=None, time_limit=300, gap_rel=1e-6):
     )
     status = model.problem.solve(solver)
     status_name = pulp.LpStatus[status]
+    objective = pulp.value(model.problem.objective)
+    objective = float("nan") if objective is None else float(objective)
     T = len(scenario["truth"][0])
     N = len(scenario["vehicles"])
     powers = _extract_powers(model, T, N, params)
-    # Report the delivered cost, not the LP's pre-snap objective.
-    delivered_cost, infos, summary = _recompute_objective(scenario, powers, params)
-    return powers, delivered_cost, status_name, infos, summary
+    infos, summary = _replay(scenario, powers)
+    return powers, objective, status_name, infos, summary
 
 
 def run(scenario, out_dir, params=None, time_limit=300, gap_rel=1e-6):
@@ -114,13 +116,12 @@ def run(scenario, out_dir, params=None, time_limit=300, gap_rel=1e-6):
     date = scenario["date"]
     seed = int(scenario["seed"])
     n_slots = len(scenario["vehicles"])
-    recon = summary["variable_cost_sgd"]
-    residual = 0.0  # by construction, we are reporting the replayed cost
+    replayed = summary["variable_cost_sgd"]
     csv_path = Path(out_dir) / f"{STRATEGY}_{date}_seed{seed}_n{n_slots}.csv"
     write_strategy_csv(csv_path, infos, STRATEGY)
     extra = {"status": status_name, "milp_objective": objective,
-             "replayed_variable_cost": recon, "residual_sgd": residual}
-    return summarize(date, seed, STRATEGY, summary, csv_path, extra=extra)
+             "replayed_variable_cost": replayed, "residual_sgd": replayed - objective}
+    return summarize(date, seed, STRATEGY, summary, csv_path, extra=extra, n_slots=n_slots)
 
 
 def main():

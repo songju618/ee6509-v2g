@@ -13,54 +13,54 @@ Solver: PuLP 2.9.0 + bundled CBC.
 - **Single peak variable** `peak >= p_grid[t]` for all t, `peak >= contract`; objective term
   `ucc_daily * (peak − contract)` charged **once**, matching A's `settle_cost` incremental rule.
 
-`milp/solve.py` extracts the signed power schedule from the LP solution (snapping `u_bess`,
+`milp/solve.py` extracts the signed power schedule from the solution (snapping `u_bess`,
 `u_ev` binaries to 0/1), then replays the schedule through `env.V2GEnv.step_power(tol=1e-4)`.
-The delivered cost reported in `results/summary.csv` is the replayed cost, not
-`pulp.value(model.objective)`; both are stored for cross-check.
+Each summary row keeps three numbers: `milp_objective` (the solver's objective value),
+`replayed_variable_cost` (A's settlement of the snapped schedule, also reported as
+`variable_cost_sgd`), and `residual_sgd` = replayed − objective.
 
 ## Test grid
 
-7 test days (2026-10-22 .. 2026-10-28) × 20 seeds (100–119) × N=5.
-Settings: `--time-limit 300 --gap-rel 1e-6`.
+7 test days (2026-10-22 .. 2026-10-28) × 20 seeds (100–119), for N=5 and N=10.
+Settings: `--time-limit 300 --gap-rel 1e-6`. One full grid takes about 10–15 s.
 
 ## Results (mean over 140 cases)
 
-| strategy | mean variable cost (S$/day) | mean total cost (S$/day) | mean peak (kW) | departure success |
-|---|---:|---:|---:|---:|
-| **MILP (offline)** | **1172.54** | **1298.05** | **242.40** | 1.0 |
-| no_storage | 1250.38 | 1375.89 | 245.89 | 1.0 |
-| price_threshold | 1258.32 | 1383.84 | 270.30 | 1.0 |
-| arrival_charge | 1260.09 | 1385.61 | 246.59 | 1.0 |
+| N | strategy | mean variable cost (S$/day) | mean total cost (S$/day) | mean peak (kW) | departure success |
+|---|---|---:|---:|---:|---:|
+| 5 | **MILP (offline)** | **1172.54** | **1298.05** | **242.40** | 1.0 |
+| 5 | price_threshold | 1234.57 | 1360.08 | 245.36 | 1.0 |
+| 5 | late_charge | 1250.38 | 1375.89 | 245.89 | 1.0 |
+| 5 | arrival_charge | 1260.09 | 1385.61 | 246.59 | 1.0 |
+| 10 | **MILP (offline)** | **1169.33** | **1294.85** | **245.52** | 1.0 |
+| 10 | price_threshold | 1246.29 | 1371.81 | 246.02 | 1.0 |
+| 10 | late_charge | 1267.37 | 1392.89 | 251.72 | 1.0 |
+| 10 | arrival_charge | 1295.28 | 1420.80 | 264.24 | 1.0 |
 
-MILP saves **77.8 S$/day (5.7%)** vs arrival_charge, **85.8 S$/day** vs price_threshold,
-**77.8 S$/day** vs no_storage. Mean peak reduces from ~246 kW (baselines) to 242.4 kW,
-close to the 240 kW contract threshold.
+MILP saves 87.6 S$/day (N=5) and 126.0 S$/day (N=10) against `arrival_charge`, and
+62.0 / 77.0 S$/day against `price_threshold`.
 
-## Replay reconciliation
+## Acceptance (root README, row C)
 
-Every MILP case was replayed through `env.V2GEnv.step_power(tol=1e-4)` and `step_cost_sgd`
-summed across 48 steps.
+`analysis.run_all` checks it on every run. For N=5 and N=10, 140 cases each:
 
-- **140/140 cases**: `status = Optimal`, replay residual `<= 0.01 S$` (`max = 0`).
-- **140/140 cases**: `MILP <= arrival_charge`, `MILP <= no_storage`, `MILP <= price_threshold`.
+- **Ordering:** `milp <= price_threshold <= arrival_charge` on 140/140 cases.
+- **Replay reconciliation:** every case is `Optimal`; the largest
+  |replayed cost − MILP objective| is 1.5e-05 S$ (N=5) and 1.7e-05 S$ (N=10), against
+  the 0.01 S$ limit.
 
-## Baseline caveats for the report
+## Notes
 
-- **`no_storage`** charges EVs only the minimum required to meet departure targets, so it
-  buys much less energy than `arrival_charge`. It is a *passive lower bound*, not a fair
-  "worst case" and not a baseline SAC should beat on cost.
-- **`price_threshold`** was tuned on 2026-10-01 only (`low_q=0.2, high_q=0.8, EV charge cap
-  3 kW`). It beats `arrival_charge` on 80/140 cases and loses on 60 because training-split
-  USEP thresholds don't always bracket test-day prices. The mean ranking holds; per-case it
-  does not. Its mean peak (270.3 kW) is significantly higher than the other strategies
-  because the rule discharges BESS at high USEP without regard to the current running peak.
-- **`arrival_charge`** is the intended "charge everything on arrival" upper bound; it
-  maintains the same mean peak as `no_storage` (~246 kW) but pays more for energy.
+- `arrival_charge` is the technical plan's 无储能 upper bound.
+- `late_charge` (formerly `no_storage`) is an extra reference, not a plan baseline. It buys
+  only the energy the departure targets require, as late as possible, so it is cheaper than
+  `arrival_charge`.
+- How `price_threshold` decides is described in `baselines/README.md`.
 
 ## Artifacts
 
-- `results/summary.csv` — 560 rows, one per (strategy, date, seed, N=5).
-- `results/diagnostics.csv` — `price_threshold` threshold values and MILP status.
+- `results/summary_n{N}.csv` — 560 rows per N, one per (strategy, date, seed).
+- `results/diagnostics_n{N}.csv` — `price_threshold` threshold values and MILP errors.
 - `results/baselines/*.csv`, `results/milp/*.csv` — per-case step CSVs (A's canonical schema).
 - `results/figures/strategy_summary.csv`, `results/figures/mean_total_cost.png`.
 
@@ -68,4 +68,6 @@ summed across 48 steps.
 
 ```powershell
 python -m analysis.run_all --n-slots 5 --seeds 100 119 --time-limit 300 --gap-rel 1e-6
+python -m analysis.run_all --n-slots 10 --seeds 100 119 --time-limit 300 --gap-rel 1e-6
 python -m analysis.compare
+```

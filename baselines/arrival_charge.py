@@ -1,4 +1,7 @@
-"""Baseline: charge each present EV at max power; BESS idle."""
+"""Baseline: charge each present EV at max power until full; BESS idle.
+
+This is the technical plan's 无储能 / 到场就充 baseline (§6.1), the cost upper bound.
+"""
 from __future__ import annotations
 
 import argparse
@@ -52,7 +55,7 @@ def run(scenario, out_dir, params=None):
     n_slots = len(scenario["vehicles"])
     csv_path = Path(out_dir) / f"{STRATEGY}_{date}_seed{seed}_n{n_slots}.csv"
     write_strategy_csv(csv_path, infos, STRATEGY)
-    return summarize(date, seed, STRATEGY, summary, csv_path)
+    return summarize(date, seed, STRATEGY, summary, csv_path, n_slots=n_slots)
 
 
 def main():

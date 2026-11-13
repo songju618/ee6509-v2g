@@ -1,8 +1,21 @@
-"""Run no_storage, arrival_charge, price_threshold, and MILP over the test grid."""
+"""Run C's strategies over the test grid and check the README acceptance for C.
+
+Strategies, one row each per (date, seed):
+- arrival_charge: the technical plan's 无储能 / 到场就充 baseline, the cost upper bound.
+- price_threshold: the plan's 规则策略 (低价充、高价放), see baselines/price_threshold.py.
+- milp: offline optimum on the whole day's true data, the cost lower bound.
+- late_charge: extra reference, not a plan baseline (formerly named no_storage). BESS
+  idle; each EV gets only what its departure constraint forces, as late as possible.
+
+Acceptance (root README, row C), checked on every run:
+- every case: milp <= price_threshold <= arrival_charge (variable cost);
+- every MILP case is Optimal and its replayed cost is within 0.01 S$ of its objective.
+"""
 from __future__ import annotations
 
 import argparse
 import csv
+import math
 from pathlib import Path
 
 import numpy as np
@@ -14,7 +27,10 @@ from env import V2GEnv, load_params
 from milp.solve import run as run_milp
 
 
-STRATEGIES = ("no_storage", "arrival_charge", "price_threshold", "milp")
+STRATEGIES = ("late_charge", "arrival_charge", "price_threshold", "milp")
+ORDERING = ("milp", "price_threshold", "arrival_charge")  # cheapest first, on every case
+COST_TOL_SGD = 1e-6
+MILP_RESIDUAL_TOL_SGD = 0.01
 
 SUMMARY_KEYS = [
     "strategy", "date", "seed", "n_slots",
@@ -25,7 +41,9 @@ SUMMARY_KEYS = [
 ]
 
 
-def run_no_storage(scenario, out_dir, params=None):
+def run_late_charge(scenario, out_dir, params=None):
+    """BESS idle; each EV power is zero clipped to the feasible interval, so an EV is
+    charged only when the departure projection forces it, and only to its target."""
     params = load_params() if params is None else params
     T = len(scenario["truth"][0])
     N = len(scenario["vehicles"])
@@ -46,21 +64,22 @@ def run_no_storage(scenario, out_dir, params=None):
     infos, summary = replay(scenario, powers, tol=1e-4)
     date = scenario["date"]
     seed = int(scenario["seed"])
-    csv_path = Path(out_dir) / f"no_storage_{date}_seed{seed}_n{N}.csv"
-    write_strategy_csv(csv_path, infos, "no_storage")
-    return summarize(date, seed, "no_storage", summary, csv_path)
+    csv_path = Path(out_dir) / f"late_charge_{date}_seed{seed}_n{N}.csv"
+    write_strategy_csv(csv_path, infos, "late_charge")
+    return summarize(date, seed, "late_charge", summary, csv_path, n_slots=N)
 
 
 def run_grid(n_slots=5, seeds=range(100, 120), out_dir="results",
              time_limit=300, gap_rel=1e-6):
     out_root = Path(out_dir)
+    summary_path = out_root / f"summary_n{n_slots}.csv"
+    diagnostics_path = out_root / f"diagnostics_n{n_slots}.csv"
     rows = []
     for date, seed, scenario in test_grid(n_slots=n_slots, seeds=seeds):
         print(f"[{date} seed={seed} N={n_slots}]", flush=True)
-        rows.append(run_no_storage(scenario, out_root / "baselines"))
+        rows.append(run_late_charge(scenario, out_root / "baselines"))
         rows.append(run_arrival_charge(scenario, out_root / "baselines"))
-        rows.append(run_price_threshold(scenario, out_root / "baselines",
-                                        low_q=0.2, high_q=0.8, ev_charge_cap_kw=3.0))
+        rows.append(run_price_threshold(scenario, out_root / "baselines"))
         try:
             rows.append(run_milp(scenario, out_root / "milp",
                                  time_limit=time_limit, gap_rel=gap_rel))
@@ -78,12 +97,12 @@ def run_grid(n_slots=5, seeds=range(100, 120), out_dir="results",
                 "error": f"{type(error).__name__}: {error}",
             })
         # Flush a snapshot after each case so nothing is lost on a later crash
-        _write_csv(out_root / "summary.csv", rows, SUMMARY_KEYS)
-        _write_csv(out_root / "diagnostics.csv", rows,
-                   ["strategy", "date", "seed", "low_q", "high_q", "usep_low", "usep_high",
-                    "ev_charge_cap_kw", "error"], extrasaction="ignore")
-    print(f"wrote {out_root / 'summary.csv'} ({len(rows)} rows)")
-    return out_root / "summary.csv", rows
+        _write_csv(summary_path, rows, SUMMARY_KEYS)
+        _write_csv(diagnostics_path, rows,
+                   ["strategy", "date", "seed", "n_slots", "low_q", "high_q", "usep_low",
+                    "usep_high", "ev_charge_cap_kw", "error"], extrasaction="ignore")
+    print(f"wrote {summary_path} ({len(rows)} rows)")
+    return summary_path, rows
 
 
 def _write_csv(path, rows, fieldnames, extrasaction="ignore"):
@@ -95,22 +114,33 @@ def _write_csv(path, rows, fieldnames, extrasaction="ignore"):
         writer.writerows(rows)
 
 
-def check_ordering(rows):
-    """Per (date, seed, n_slots): no_storage >= arrival_charge >= price_threshold >= milp (cost)."""
+def check_acceptance(rows):
+    """Return a list of acceptance failures; an empty list means C's acceptance holds."""
     by_case = {}
     for row in rows:
-        if row["variable_cost_sgd"] != row["variable_cost_sgd"]:  # NaN check
-            continue
         key = (row["date"], row["seed"], row["n_slots"])
-        by_case.setdefault(key, {})[row["strategy"]] = row["total_cost_sgd"]
-    violations = []
-    for key, costs in by_case.items():
-        for a, b in (("no_storage", "arrival_charge"),
-                     ("arrival_charge", "price_threshold"),
-                     ("price_threshold", "milp")):
-            if a in costs and b in costs and costs[b] > costs[a] + 1e-6:
-                violations.append((key, a, b, costs[a], costs[b]))
-    return violations
+        by_case.setdefault(key, {})[row["strategy"]] = row
+    failures = []
+    for key, case in sorted(by_case.items()):
+        costs = {s: case[s]["variable_cost_sgd"] for s in ORDERING if s in case}
+        if len(costs) < len(ORDERING) or any(math.isnan(c) for c in costs.values()):
+            failures.append(f"{key}: missing or failed strategy, have {sorted(costs)}")
+            continue
+        for cheaper, dearer in zip(ORDERING, ORDERING[1:]):
+            if costs[cheaper] > costs[dearer] + COST_TOL_SGD:
+                failures.append(f"{key}: {cheaper}={costs[cheaper]:.4f} > "
+                                f"{dearer}={costs[dearer]:.4f}")
+        milp = case["milp"]
+        if milp.get("status") != "Optimal":
+            failures.append(f"{key}: MILP status {milp.get('status')}")
+        residual = milp.get("residual_sgd")
+        if residual is None or not abs(residual) <= MILP_RESIDUAL_TOL_SGD:
+            failures.append(f"{key}: MILP replay residual {residual}")
+        for strategy, row in case.items():
+            rate = row.get("departure_success_rate")
+            if rate is not None and rate < 1.0:
+                failures.append(f"{key}: {strategy} departure success {rate}")
+    return failures
 
 
 def main():
@@ -124,13 +154,16 @@ def main():
     seeds = range(args.seeds[0], args.seeds[1] + 1)
     path, rows = run_grid(n_slots=args.n_slots, seeds=seeds, out_dir=args.out,
                           time_limit=args.time_limit, gap_rel=args.gap_rel)
-    violations = check_ordering(rows)
-    if violations:
-        print(f"{len(violations)} ordering violations")
-        for key, a, b, ca, cb in violations[:10]:
-            print(f"  {key}: {a}={ca:.4f} -> {b}={cb:.4f}")
-    else:
-        print("ordering OK: no_storage >= arrival_charge >= price_threshold >= milp on all cases")
+    n_cases = len({(row["date"], row["seed"]) for row in rows})
+    failures = check_acceptance(rows)
+    if failures:
+        print(f"acceptance FAILED: {len(failures)} problem(s) over {n_cases} cases")
+        for line in failures[:20]:
+            print(f"  {line}")
+        raise SystemExit(1)
+    worst = max(abs(row["residual_sgd"]) for row in rows if row["strategy"] == "milp")
+    print(f"acceptance OK over {n_cases} cases: milp <= price_threshold <= arrival_charge "
+          f"on every case; every MILP Optimal, max |replay residual| = {worst:.2e} S$")
 
 
 if __name__ == "__main__":
